@@ -1,20 +1,42 @@
 version: 2.1
-
 jobs:
-  hello-job:
+  # running commands on a basic image
+  Hello-World:
     docker:
-      - image: cimg/node:17.2.0 # the primary container, where your job's commands are run
+      - image: cimg/base:2021.04
     steps:
-      - checkout # check out the code in the project directory
-      - run: echo "hello world" # run the `echo` command
-      - run: 
-          name: Install dependencies
-          command: npm install
       - run:
-          name: Run Test
-          command: npm run test
-
+          name: Saying Hello
+          command: |
+            echo 'Hello World!'
+            echo 'This is the delivery pipeline'
+  # fetching code from the repo
+  Fetch-Code:
+    docker:
+      - image: cimg/base:2021.04
+    steps:
+      - checkout
+      - run:
+          name: Getting the Code
+          command: |
+            ls -al
+            echo '^^^Your repo files^^^'
+  # running a node container
+  Using-Node:
+    docker:
+      - image: cimg/node:17.2
+    steps:
+      - run:
+          name: Running the Node Container
+          command: |
+            node -v
 workflows:
-  my-workflow:
+  Example-Workflow:
     jobs:
-      - hello-job
+      - Hello-World
+      - Fetch-Code:
+          requires:
+            - Hello-World
+      - Using-Node:
+          requires:
+            - Fetch-Code
